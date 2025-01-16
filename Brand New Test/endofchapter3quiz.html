@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <title>True/False Quiz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Grandstander:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Previous styles remain the same until score-display */
+        body{
+            margin:0;
+            padding:0;
+            width:100vw;
+            height:100vh;
+            display:flex;
+            justify-content: center;
+            align-items: center;
+            background:#F0F0F0;
+            font-family: 'Grandstander', cursive;
+            overflow:hidden;
+        }
+
+        #overlay{
+            background:rgba(0,0,0,0.6);
+            width:100vw;
+            height:100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position:absolute;
+            top:-100vh;
+        }
+
+        #overlay div{
+            text-align: center;
+            color: whitesmoke;
+        }
+
+        #container {
+            width: 960px;
+            height: 540px;
+            aspect-ratio: 16/9;
+            background-color: aliceblue;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quiz-container {
+            width: 90%;
+            max-width: 800px;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        
+        .question {
+            display: none;
+            margin-bottom: 30px;
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            width: 100%;
+        }
+        
+        .question.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .answer-btn {
+            background-color: #fff;
+            border: 3px solid #4CAF50;
+            color: #4CAF50;
+            padding: 15px 40px;
+            margin: 10px;
+            border-radius: 25px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Grandstander', cursive;
+        }
+        
+        .answer-btn:hover {
+            background-color: #4CAF50;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        #score-display {
+            display: none;
+            font-size: 28px;
+            color: #2c3e50;
+            margin-top: 20px;
+        }
+
+        #retry-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 40px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 20px;
+            cursor: pointer;
+            font-family: 'Grandstander', cursive;
+            transition: all 0.3s ease;
+        }
+
+        #retry-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 36px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .progress {
+            width: 0%;
+            height: 100%;
+            background-color: #4CAF50;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        #quiz {
+            width: 100%;
+        }
+
+        @media only screen 
+        and (min-device-width: 375px) 
+        and (orientation: portrait) { 
+            #overlay {
+                top:0;
+            }
+        }
+        @media only screen 
+        and (max-width: 767px) and (orientation: landscape) { 
+            #container{
+                transform:scale(.6);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="overlay">
+        <div>
+            <svg fill="#ffffff" width="150" height="150" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 214.367 214.367" xml:space="preserve">
+                <path d="M202.403,95.22c0,46.312-33.237,85.002-77.109,93.484v25.663l-69.76-40l69.76-40v23.494
+                    c27.176-7.87,47.109-32.964,47.109-62.642c0-35.962-29.258-65.22-65.22-65.22s-65.22,29.258-65.22,65.22
+                    c0,9.686,2.068,19.001,6.148,27.688l-27.154,12.754c-5.968-12.707-8.994-26.313-8.994-40.441C11.964,42.716,54.68,0,107.184,0
+                    S202.403,42.716,202.403,95.22z">
+                </path>
+            </svg>
+            <h1>Please rotate your screen</h1>
+        </div>
+    </div>
+
+    <div id="container">
+        <div class="quiz-container">
+            <h1>True/False Quiz</h1>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+
+           
+            
+            <div id="quiz">
+                <div class="question active" data-question="1">
+                    <p>One way to manage AI risks is to trust all information provided by AI chatbots without question.</p>
+                    <button class="answer-btn" onclick="checkAnswer(1, false)">True</button>
+                    <button class="answer-btn" onclick="checkAnswer(1, true)">False</button>
+                </div>
+                
+                <div class="question" data-question="2">
+                    <p>When evaluating AI-generated information, it's crucial to verify information from multiple reliable sources.</p>
+                    <button class="answer-btn" onclick="checkAnswer(2, true)">True</button>
+                    <button class="answer-btn" onclick="checkAnswer(2, false)">False</button>
+                </div>
+                
+                <div class="question" data-question="3">
+                    <p>AI-generated content can often be identified by certain patterns and characteristics in the text.</p>
+                    <button class="answer-btn" onclick="checkAnswer(3, true)">True</button>
+                    <button class="answer-btn" onclick="checkAnswer(3, false)">False</button>
+                </div>
+            
+                <div class="question" data-question="4">
+                    <p>Deepfakes can be used to create deceptive content that poses serious risks to privacy and security.</p>
+                    <button class="answer-btn" onclick="checkAnswer(4, true)">True</button>
+                    <button class="answer-btn" onclick="checkAnswer(4, false)">False</button>
+                </div>
+            
+                <div class="question" data-question="5">
+                    <p>Using AI detection tools is one of several helpful strategies for identifying potentially AI-generated content.</p>
+                    <button class="answer-btn" onclick="checkAnswer(5, true)">True</button>
+                    <button class="answer-btn" onclick="checkAnswer(5, false)">False</button>
+                </div>
+            </div>
+            
+            <div id="score-display"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 1;
+        let score = 0;
+        const totalQuestions = document.querySelectorAll('.question').length;
+        const PASSING_SCORE = 3;
+        const NEXT_PAGE_URL = 'new_chapter_3_done_1.html'; // Replace with your target URL
+        
+        function updateProgress() {
+            const progress = ((currentQuestion - 1) / totalQuestions) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+        }
+        
+        function checkAnswer(questionNumber, isCorrect) {
+            if (isCorrect) {
+                score++;
+            }
+            
+            if (currentQuestion < totalQuestions) {
+                document.querySelector(`.question[data-question="${currentQuestion}"]`).classList.remove('active');
+                currentQuestion++;
+                document.querySelector(`.question[data-question="${currentQuestion}"]`).classList.add('active');
+                updateProgress();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quiz').style.display = 'none';
+            document.getElementById('score-display').style.display = 'block';
+            document.getElementById('progress').style.width = '100%';
+            
+            if (score >= PASSING_SCORE) {
+                document.getElementById('score-display').innerHTML = `
+                    <h2>Congratulations!</h2>
+                    <p>You scored ${score} out of ${totalQuestions}!</p>
+                    <p>Redirecting to next page...</p>
+                `;
+                setTimeout(() => {
+                    window.location.href = NEXT_PAGE_URL;
+                }, 1500);
+            } else {
+                document.getElementById('score-display').innerHTML = `
+                    <h2>Nice Try!</h2>
+                    <p>You scored ${score} out of ${totalQuestions}</p>
+                    <p>You need at least ${PASSING_SCORE} correct answers to proceed.</p>
+                    <button id="retry-btn" onclick="resetQuiz()">Try Again</button>
+                `;
+            }
+        }
+
+        function resetQuiz() {
+            currentQuestion = 1;
+            score = 0;
+            document.getElementById('progress').style.width = '0%';
+            document.getElementById('quiz').style.display = 'block';
+            document.getElementById('score-display').style.display = 'none';
+            
+            document.querySelectorAll('.question').forEach(q => {
+                q.classList.remove('active');
+            });
+            document.querySelector('.question[data-question="1"]').classList.add('active');
+        }
+
+        class CountdownTimer {
+                        constructor() {
+                            this.timerElement = document.getElementById('timer');
+                            this.modal = document.getElementById('skipModal');
+                            this.totalTime = 600000; // 10 minutes in milliseconds
+                            this.initializeTimer();
+                            
+                            // Add click event listener to timer
+                            this.timerElement.addEventListener('click', () => this.showSkipModal());
+                        }
+            
+                        initializeTimer() {
+                            const startTime = localStorage.getItem('timerStartTime');
+                            
+                            if (!startTime) {
+                                // First time initialization
+                                localStorage.setItem('timerStartTime', Date.now().toString());
+                            }
+            
+                            this.updateTimer();
+                        }
+            
+                        updateTimer() {
+                            const startTime = parseInt(localStorage.getItem('timerStartTime'));
+                            const currentTime = Date.now();
+                            const elapsedTime = currentTime - startTime;
+                            const remainingTime = Math.max(0, this.totalTime - elapsedTime);
+            
+                            if (remainingTime <= 0) {
+                                this.timerComplete();
+                                return;
+                            }
+            
+                            // Convert to minutes and seconds
+                            const minutes = Math.floor(remainingTime / 60000);
+                            const seconds = Math.floor((remainingTime % 60000) / 1000);
+            
+                            this.timerElement.textContent = 
+                                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+                            // Update more frequently for smoother countdown
+                            requestAnimationFrame(() => this.updateTimer());
+                        }
+            
+                        showSkipModal() {
+                            this.modal.style.display = 'flex';
+                        }
+            
+                        closeModal() {
+                            this.modal.style.display = 'none';
+                        }
+            
+                        skipTimer() {
+                            localStorage.removeItem('timerStartTime');
+                            // Replace 'your-destination-page.html' with your actual destination page
+                            window.location.href = 'newendofvol1.html';
+                        }
+            
+                        timerComplete() {
+                            localStorage.removeItem('timerStartTime');
+                            // Replace 'your-destination-page.html' with your actual destination page
+                            window.location.href = 'newendofvol1.html';
+                        }
+                    }
+            
+                    // Initialize timer when page loads
+                    const timer = new CountdownTimer();
+            
+                    // Modal control functions
+                    function closeModal() {
+                        timer.closeModal();
+                    }
+            
+                    function confirmSkip() {
+                        timer.skipTimer();
+                    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <title>Quiz Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Grandstander:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #F0F0F0;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            overflow: hidden;
+        }
+
+        #overlay {
+            background: rgba(0,0,0,0.6);
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: -100vh;
+        }
+
+        #overlay div {
+            text-align: center;
+            color: whitesmoke;
+        }
+
+        #container {
+            width: 960px;
+            height: 540px;
+            aspect-ratio: 16/9;
+            background-color: aliceblue;
+            overflow: hidden;
+            border-radius: 3px;
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            font-family: 'Grandstander', cursive;
+            background-color: aliceblue;
+            border-radius: 1px;
+        }
+
+        h2 {
+            font-family: 'Grandstander', cursive;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        #question-text {
+            font-family: 'Grandstander', cursive;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .progress {
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .score {
+            text-align: right;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: #007bff;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .option {
+            padding: 10px;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1em;
+            font-weight: 500;
+        }
+
+        .option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .option.selected {
+            border-color: #007bff;
+            background-color: #e3f2fd;
+        }
+
+        .option.correct {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .feedback.correct {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .feedback.incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Grandstander', cursive;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .results {
+            text-align: center;
+            display: none;
+        }
+
+        .results h2 {
+            color: #007bff;
+        }
+
+        .image-container {
+  position: absolute; /* Position the image container absolutely */
+  bottom: 10px; /* Position the image at the bottom */
+  right: 0px; /* Position the image at the right */
+}
+
+.image-container img {
+  width: 250px; /* Adjust the image width as needed */
+  height: auto; /* Maintain aspect ratio */
+}
+
+        @media only screen 
+        and (min-device-width: 375px) 
+        and (orientation: portrait) { 
+            #overlay {
+                top: 0;
+            }
+        }
+
+        @media only screen 
+        and (max-width: 767px) and (orientation: landscape) { 
+            #container {
+                transform: scale(.6);
+            }
+        }
+
+        .horizontal-flip {
+  transform: scaleX(-1);
+}
+    </style>
+</head>
+<body>
+    <div id="overlay">
+        <div>
+            <svg fill="#ffffff" width="150" height="150" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 214.367 214.367" xml:space="preserve">
+                <path d="M202.403,95.22c0,46.312-33.237,85.002-77.109,93.484v25.663l-69.76-40l69.76-40v23.494c27.176-7.87,47.109-32.964,47.109-62.642c0-35.962-29.258-65.22-65.22-65.22s-65.22,29.258-65.22,65.22c0,9.686,2.068,19.001,6.148,27.688l-27.154,12.754c-5.968-12.707-8.994-26.313-8.994-40.441C11.964,42.716,54.68,0,107.184,0S202.403,42.716,202.403,95.22z"></path>
+            </svg>
+            <h1>Please rotate your screen</h1>
+        </div>
+    </div>
+
+    <div id="container">
+        <div class="quiz-container">
+            <div class="score">Score: <span id="score">0</span></div>
+            <div class="progress">Question <span id="current-question">1</span> of <span id="total-questions">8</span></div>
+            
+            <div id="question-container">
+                <h2 id="question-text"></h2>
+                <div class="options" id="options-container"></div>
+            </div>
+
+            <div class="results" id="results">
+                <h2>Quiz Complete!</h2>
+                <p>Your final score: <span id="final-score">0</span>/<span id="total-score">0</span></p>
+                <button onclick="restartQuiz()">Restart Quiz</button>
+            </div>
+
+            <div class="button-container">
+                <button onclick="checkAnswer()" id="submit-btn">Submit Answer</button>
+                <button onclick="nextQuestion()" id="next-btn" style="display: none;">Next Question</button>
+            </div>
+            
+            <div class="feedback"></div>
+        </div>
+    </div>
+
+    <div class="image-container">
+        <img src="officeworker_text_box_blueeee.png"  class="horizontal-flip"  >
+
+
+    <script>
+        const questions = [
+            {
+                question: "What does pressing the Google icon do? ",
+                options: ["Open Gmail", "Starts a search", "Show Google apps", "Open Google Drive"],
+                correctAnswer: 2
+            },
+            {
+                question: "What is the main use of Gen AI?",
+                options: ["Data storage", "Content generation", "Network security", "File compression"],
+                correctAnswer: 1
+            },
+            {
+                question: "What can Gen AI do?",
+                options: ["Only write text", "Generate multiple content types", "Only edit images", "Only write code"],
+                correctAnswer: 1
+            },
+            {
+                question: "What are at least 2 features your prompt should have? ",
+                options: ["Terms and Jargon", "Conflicting and Contradictory", "Poorly Formatted and Difficult ", "Persona and Text"],
+                correctAnswer: 3
+            },
+            {
+                question: "What is NOT a risk of Gen AI?",
+                options: ["Increased productivity and efficiency", "Data privacy concern", "Copyright issues", "Spreading misinformation"],
+                correctAnswer: 0
+            },
+            {
+                question: "What framework should you follow to manage Gen AI risks?",
+                options: ["B.E.A.N", "H.O.L.D", "S.U.R.E", "L.O.C.K"],
+                correctAnswer: 2
+            },
+            {
+                question: "What does that framework stand for?",
+                options: ["Safe, Understandable, Reliable, Ethical", "Source, Understand, Research, Evaluate", "Sustainable, Usable, Reliable, Efficient", "Simple, Unique, Relevant, Effective"],
+                correctAnswer: 1
+            },
+            {
+                question: "What is NOT a tip for writing effective prompts?",
+                options: ["Be specific and iterate", "Be concise and clear", "Make the conversation short and sweet", "Use natural language"],
+                correctAnswer: 2
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedback = document.querySelector('.feedback');
+        const submitButton = document.getElementById('submit-btn');
+        const nextButton = document.getElementById('next-btn');
+        const scoreElement = document.getElementById('score');
+        const currentQuestionElement = document.getElementById('current-question');
+        const totalQuestionsElement = document.getElementById('total-questions');
+        const resultsDiv = document.getElementById('results');
+        const questionContainer = document.getElementById('question-container');
+        const finalScoreElement = document.getElementById('final-score');
+        const totalScoreElement = document.getElementById('total-score');
+
+        function loadQuestion() {
+            const question = questions[currentQuestion];
+            questionText.textContent = question.question;
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.textContent = option;
+                div.addEventListener('click', () => selectOption(div, index));
+                optionsContainer.appendChild(div);
+            });
+
+            currentQuestionElement.textContent = currentQuestion + 1;
+            totalQuestionsElement.textContent = questions.length;
+            
+            feedback.style.display = 'none';
+            submitButton.style.display = 'block';
+            nextButton.style.display = 'none';
+            selectedOption = null;
+        }
+
+        function selectOption(optionElement, index) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            optionElement.classList.add('selected');
+            selectedOption = { element: optionElement, index: index };
+        }
+
+        function checkAnswer() {
+            if (!selectedOption) {
+                feedback.textContent = 'Please select an answer';
+                feedback.className = 'feedback incorrect';
+                feedback.style.display = 'block';
+                return;
+            }
+
+            const correctIndex = questions[currentQuestion].correctAnswer;
+            const isCorrect = selectedOption.index === correctIndex;
+            
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, index) => {
+                if (index === correctIndex) {
+                    option.classList.add('correct');
+                } else if (index === selectedOption.index && !isCorrect) {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            if (isCorrect) {
+                score++;
+                scoreElement.textContent = score;
+            }
+
+            feedback.textContent = isCorrect ? 'Correct! Well done!' : 'Incorrect. Try again!';
+            feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            feedback.style.display = 'block';
+
+            submitButton.style.display = 'none';
+            nextButton.style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion >= questions.length) {
+                showResults();
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function showResults() {
+            questionContainer.style.display = 'none';
+            document.querySelector('.button-container').style.display = 'none';
+            feedback.style.display = 'none';
+            resultsDiv.style.display = 'block';
+            finalScoreElement.textContent = score;
+            totalScoreElement.textContent = questions.length;
+
+            if (score >= 4) {
+                setTimeout(() => {
+                    window.location.href = 'newendofmcq1.html';
+                }, 10);
+            }
+
+            if (score <= 3) {
+                setTimeout(() => {
+                    window.location.href = 'newbadendofmcq1.html';
+                }, 10);
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            scoreElement.textContent = '0';
+            questionContainer.style.display = 'block';
+            document.querySelector('.button-container').style.display = 'flex';
+            resultsDiv.style.display = 'none';
+            loadQuestion();
+        }
+
+        // Initialize the quiz
+        loadQuestion();
+    </script>
+</body>
+</html>

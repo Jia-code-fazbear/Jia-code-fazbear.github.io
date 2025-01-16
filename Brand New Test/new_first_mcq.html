@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <title>Quiz Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Grandstander:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Previous styles remain the same */
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #F0F0F0;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            overflow: hidden;
+        }
+
+        #overlay {
+            background: rgba(0,0,0,0.6);
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: -100vh;
+        }
+
+        #overlay div {
+            text-align: center;
+            color: whitesmoke;
+        }
+
+        #container {
+            width: 960px;
+            height: 540px;
+            aspect-ratio: 16/9;
+            background-color: aliceblue;
+            overflow: hidden;
+            border-radius: 3px;
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            font-family: 'Grandstander', cursive;
+            background-color: aliceblue;
+            border-radius: 1px;
+        }
+
+        h2 {
+            font-family: 'Grandstander', cursive;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        #question-text {
+            font-family: 'Grandstander', cursive;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .progress {
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .score {
+            text-align: right;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: #007bff;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .option {
+            padding: 10px;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1em;
+            font-weight: 500;
+        }
+
+        .option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .option.selected {
+            border-color: #007bff;
+            background-color: #e3f2fd;
+        }
+
+        .option.correct {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .feedback.correct {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .feedback.incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Grandstander', cursive;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .results {
+            text-align: center;
+            display: none;
+        }
+
+        .results h2 {
+            color: #007bff;
+        }
+
+        .timer {
+    font-size: 24px;
+    font-family: monospace;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.timer:hover {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.modal-buttons {
+    margin-top: 20px;
+}
+
+.modal-buttons button {
+    margin: 0 10px;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.confirm-btn {
+    background: #4CAF50;
+    color: white;
+}
+
+.cancel-btn {
+    background: #f44336;
+    color: white;
+}
+    </style>
+</head>
+<body>
+    <div id="overlay">
+        <div>
+            <h1>Please rotate your screen</h1>
+        </div>
+    </div>
+
+    <div id="container">
+        <div class="quiz-container">
+            <div class="score">Score: <span id="score">0</span></div>
+            <div class="progress">Question <span id="current-question">1</span> of <span id="total-questions">4</span></div>
+            
+            <div id="question-container">
+                <h2 id="question-text"></h2>
+                <div class="options" id="options-container"></div>
+            </div>
+
+            <div class="results" id="results">
+                <h2>Quiz Complete!</h2>
+                <p>Your final score: <span id="final-score">0</span>/<span id="total-score">0</span></p>
+                <div id="retry-section" style="display: none;">
+                    <p>You need to score at least 2 points to proceed. Would you like to try again?</p>
+                    <button onclick="restartQuiz()">Retry Quiz</button>
+                </div>
+            </div>
+
+            <div class="button-container">
+                <button onclick="checkAnswer()" id="submit-btn">Submit Answer</button>
+                <button onclick="nextQuestion()" id="next-btn" style="display: none;">Next Question</button>
+            </div>
+            
+            <div class="feedback"></div>
+        </div>
+        <div class="timer" id="timer">10:00</div>
+
+        <div class="modal" id="skipModal">
+            <div class="modal-content">
+                <h2>Skip Timer?</h2>
+                <p>Are you sure you want to skip the remaining time?</p>
+                <div class="modal-buttons">
+                    <button class="confirm-btn" onclick="confirmSkip()">Yes, Skip</button>
+                    <button class="cancel-btn" onclick="closeModal()">No, Continue</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            class CountdownTimer {
+                constructor() {
+                    this.timerElement = document.getElementById('timer');
+                    this.modal = document.getElementById('skipModal');
+                    this.totalTime = 600000; // 10 minutes in milliseconds
+                    this.initializeTimer();
+                    
+                    // Add click event listener to timer
+                    this.timerElement.addEventListener('click', () => this.showSkipModal());
+                }
+    
+                initializeTimer() {
+                    const startTime = localStorage.getItem('timerStartTime');
+                    
+                    if (!startTime) {
+                        // First time initialization
+                        localStorage.setItem('timerStartTime', Date.now().toString());
+                    }
+    
+                    this.updateTimer();
+                }
+    
+                updateTimer() {
+                    const startTime = parseInt(localStorage.getItem('timerStartTime'));
+                    const currentTime = Date.now();
+                    const elapsedTime = currentTime - startTime;
+                    const remainingTime = Math.max(0, this.totalTime - elapsedTime);
+    
+                    if (remainingTime <= 0) {
+                        this.timerComplete();
+                        return;
+                    }
+    
+                    // Convert to minutes and seconds
+                    const minutes = Math.floor(remainingTime / 60000);
+                    const seconds = Math.floor((remainingTime % 60000) / 1000);
+    
+                    this.timerElement.textContent = 
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+                    // Update more frequently for smoother countdown
+                    requestAnimationFrame(() => this.updateTimer());
+                }
+    
+                showSkipModal() {
+                    this.modal.style.display = 'flex';
+                }
+    
+                closeModal() {
+                    this.modal.style.display = 'none';
+                }
+    
+                skipTimer() {
+                    localStorage.removeItem('timerStartTime');
+                    // Replace 'your-destination-page.html' with your actual destination page
+                    window.location.href = 'newendofvol1.html';
+                }
+    
+                timerComplete() {
+                    localStorage.removeItem('timerStartTime');
+                    // Replace 'your-destination-page.html' with your actual destination page
+                    window.location.href = 'newendofvol1.html';
+                }
+            }
+    
+            // Initialize timer when page loads
+            const timer = new CountdownTimer();
+    
+            // Modal control functions
+            function closeModal() {
+                timer.closeModal();
+            }
+    
+            function confirmSkip() {
+                timer.skipTimer();
+            }
+        
+
+    
+        const questions = [
+            {
+                question: "What does pressing the Google icon do?",
+                options: ["Opens Gmail", "Starts a search", "Shows Google apps", "Opens Google Drive"],
+                correctAnswer: 2
+            },
+            {
+                question: "What is the main use of Gen AI?",
+                options: ["Data storage", "Content generation", "Network security", "File compression"],
+                correctAnswer: 1
+            },
+            {
+                question: "What can Gen AI do?",
+                options: ["Only write text", "Generate multiple content types", "Only edit images", "Only write code"],
+                correctAnswer: 1
+            },
+            {
+                question: "What are the risks of Gen AI?",
+                options: ["No risks", "Only privacy risks", "Multiple risks including bias", "Only security risks"],
+                correctAnswer: 2
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedback = document.querySelector('.feedback');
+        const submitButton = document.getElementById('submit-btn');
+        const nextButton = document.getElementById('next-btn');
+        const scoreElement = document.getElementById('score');
+        const currentQuestionElement = document.getElementById('current-question');
+        const totalQuestionsElement = document.getElementById('total-questions');
+        const resultsDiv = document.getElementById('results');
+        const questionContainer = document.getElementById('question-container');
+        const finalScoreElement = document.getElementById('final-score');
+        const totalScoreElement = document.getElementById('total-score');
+        const retrySection = document.getElementById('retry-section');
+
+        function loadQuestion() {
+            const question = questions[currentQuestion];
+            questionText.textContent = question.question;
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.textContent = option;
+                div.addEventListener('click', () => selectOption(div, index));
+                optionsContainer.appendChild(div);
+            });
+
+            currentQuestionElement.textContent = currentQuestion + 1;
+            totalQuestionsElement.textContent = questions.length;
+            
+            feedback.style.display = 'none';
+            submitButton.style.display = 'block';
+            nextButton.style.display = 'none';
+            selectedOption = null;
+        }
+
+        function selectOption(optionElement, index) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            optionElement.classList.add('selected');
+            selectedOption = { element: optionElement, index: index };
+        }
+
+        function checkAnswer() {
+            if (!selectedOption) {
+                feedback.textContent = 'Please select an answer';
+                feedback.className = 'feedback incorrect';
+                feedback.style.display = 'block';
+                return;
+            }
+
+            const correctIndex = questions[currentQuestion].correctAnswer;
+            const isCorrect = selectedOption.index === correctIndex;
+            
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, index) => {
+                if (index === correctIndex) {
+                    option.classList.add('correct');
+                } else if (index === selectedOption.index && !isCorrect) {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            if (isCorrect) {
+                score++;
+                scoreElement.textContent = score;
+            }
+
+            feedback.textContent = isCorrect ? 'Correct! Well done!' : 'Incorrect. Try again!';
+            feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            feedback.style.display = 'block';
+
+            submitButton.style.display = 'none';
+            nextButton.style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion >= questions.length) {
+                showResults();
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function showResults() {
+            questionContainer.style.display = 'none';
+            document.querySelector('.button-container').style.display = 'none';
+            feedback.style.display = 'none';
+            resultsDiv.style.display = 'block';
+            finalScoreElement.textContent = score;
+            totalScoreElement.textContent = questions.length;
+
+            if (score >= 2) {
+                retrySection.style.display = 'none';
+                setTimeout(() => {
+                    window.location.href = 'chapter1_mcq_end.html';
+                }, 1500);
+            } else {
+                retrySection.style.display = 'block';
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            scoreElement.textContent = '0';
+            questionContainer.style.display = 'block';
+            document.querySelector('.button-container').style.display = 'flex';
+            resultsDiv.style.display = 'none';
+            retrySection.style.display = 'none';
+            loadQuestion();
+        }
+
+        // Initialize the quiz
+        loadQuestion();
+    </script>
+</body>
+</html>

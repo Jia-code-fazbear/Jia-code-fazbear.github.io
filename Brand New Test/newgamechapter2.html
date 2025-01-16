@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Order Game</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Grandstander:wght@400;700&display=swap');
+
+        body{
+            margin:0;
+            padding:0;
+            width:100vw;
+            height:100vh;
+            display:flex;
+            justify-content: center;
+            align-items: center;
+            background:#F0F0F0;
+            font-family: 'Grandstander', cursive;
+            overflow:hidden;
+        }
+        #overlay{
+            background:rgba(0,0,0,0.6);
+            width:100vw;
+            height:100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position:absolute;
+            top:-100vh;
+        }
+        #overlay div{
+            text-align: center;
+            color: whitesmoke;
+        }
+
+        iframe{
+            width: 960px;
+            height: 540px;
+            aspect-ratio: 16/9;
+            border:none;
+            background-color: aliceblue;
+            overflow:hidden;
+        }
+
+        @media only screen 
+        and (min-device-width: 375px) 
+        and (orientation: portrait) { 
+            #overlay {
+                top:0;
+            }
+        }
+
+        @media only screen 
+        and (max-width: 767px) and (orientation: landscape) { 
+            #container{
+                transform:scale(.6);
+            }
+        }
+
+        #container {
+            background-color: #f0f8ff;
+            background-color: rgba(240, 248, 255, 1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .word {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .dropzone {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #e6f7ff;
+            border: 2px dashed #007bff;
+            border-radius: 5px;
+            min-width: 100px;
+        }
+        .hidden {
+            display: none;
+        }
+
+        button {
+            font-family: 'Grandstander', cursive;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .next-button {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="overlay"><div><svg fill="#ffffff" width="150" height="150" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 214.367 214.367" xml:space="preserve">
+       <path d="M202.403,95.22c0,46.312-33.237,85.002-77.109,93.484v25.663l-69.76-40l69.76-40v23.494
+           c27.176-7.87,47.109-32.964,47.109-62.642c0-35.962-29.258-65.22-65.22-65.22s-65.22,29.258-65.22,65.22
+           c0,9.686,2.068,19.001,6.148,27.688l-27.154,12.754c-5.968-12.707-8.994-26.313-8.994-40.441C11.964,42.716,54.68,0,107.184,0
+           S202.403,42.716,202.403,95.22z"></path>
+       </svg><h1>Please rotate your screen</h1></div></div>
+    <div id="container">
+        <div id="game">
+            <h1>Arrange the Words in the Correct Order</h1>
+            <p>Drag and drop the words into the correct order:</p>
+
+            <div id="wordContainer">
+                <div class="word" draggable="true">persona</div>
+                <div class="word" draggable="true">context</div>
+                <div class="word" draggable="true">audience</div>
+                <div class="word" draggable="true">task</div>
+                <div class="word" draggable="true">format</div>
+            </div>
+
+            <div id="dropzoneContainer">
+                <div class="dropzone" data-order="0"></div>
+                <div class="dropzone" data-order="1"></div>
+                <div class="dropzone" data-order="2"></div>
+                <div class="dropzone" data-order="3"></div>
+                <div class="dropzone" data-order="4"></div>
+            </div>
+
+            <button id="checkButton">Check Order</button>
+            <p id="resultMessage" class="hidden"></p>
+            <button id="nextButton" class="hidden next-button">Next</button>
+        </div>
+    </div>
+
+    <script>
+        const correctOrder = ["persona", "context", "audience", "task", "format"];
+        const wordContainer = document.getElementById("wordContainer");
+        const words = document.querySelectorAll(".word");
+        const dropzones = document.querySelectorAll(".dropzone");
+        const resultMessage = document.getElementById("resultMessage");
+        const nextButton = document.getElementById("nextButton");
+    
+        // Function to shuffle array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+    
+        // Function to reset the game
+        function resetGame() {
+            // Clear dropzones
+            dropzones.forEach(dropzone => {
+                dropzone.textContent = '';
+            });
+    
+            // Recreate and shuffle words
+            wordContainer.innerHTML = '';
+            const shuffledWords = shuffleArray([...correctOrder]);
+            shuffledWords.forEach(word => {
+                const wordDiv = document.createElement('div');
+                wordDiv.className = 'word';
+                wordDiv.draggable = true;
+                wordDiv.textContent = word;
+                wordDiv.addEventListener("dragstart", event => {
+                    event.dataTransfer.setData("text", event.target.textContent);
+                });
+                wordContainer.appendChild(wordDiv);
+            });
+    
+            // Hide result message and next button
+            resultMessage.classList.add("hidden");
+            nextButton.classList.add("hidden");
+        }
+    
+        // Initialize game with shuffled words
+        resetGame();
+    
+        dropzones.forEach(dropzone => {
+            dropzone.addEventListener("dragover", event => {
+                event.preventDefault();
+            });
+    
+            dropzone.addEventListener("drop", event => {
+                event.preventDefault();
+                const draggedWord = event.dataTransfer.getData("text");
+                event.target.textContent = draggedWord;
+                event.target.classList.remove("placeholder");
+            });
+        });
+    
+        document.getElementById("checkButton").addEventListener("click", () => {
+            const currentOrder = Array.from(dropzones).map(zone => zone.textContent.trim());
+            const isCorrect = JSON.stringify(currentOrder) === JSON.stringify(correctOrder);
+    
+            if (isCorrect) {
+                resultMessage.textContent = "Correct! Well done.";
+                resultMessage.classList.remove("hidden");
+                nextButton.classList.remove("hidden");
+            } else {
+                // Show popup for incorrect attempt
+                alert("Incorrect order. Please try again!");
+                resetGame();
+            }
+        });
+    
+        nextButton.addEventListener("click", () => {
+            window.location.href = "newchapter2_15.html";
+        });
+    </script>
+</body>
+</html>

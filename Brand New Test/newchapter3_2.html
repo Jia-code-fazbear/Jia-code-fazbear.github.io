@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <title>John AI Inc</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Grandstander:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="overlay">
+        <div>
+            <svg fill="#ffffff" width="150" height="150" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 214.367 214.367" xml:space="preserve">
+                <path d="M202.403,95.22c0,46.312-33.237,85.002-77.109,93.484v25.663l-69.76-40l69.76-40v23.494
+                    c27.176-7.87,47.109-32.964,47.109-62.642c0-35.962-29.258-65.22-65.22-65.22s-65.22,29.258-65.22,65.22
+                    c0,9.686,2.068,19.001,6.148,27.688l-27.154,12.754c-5.968-12.707-8.994-26.313-8.994-40.441C11.964,42.716,54.68,0,107.184,0
+                    S202.403,42.716,202.403,95.22z"></path>
+            </svg>
+            <h1>Please rotate your screen</h1>
+        </div>
+    </div>
+
+    <div id="container">
+        <div class="all">
+            <div class="box"> 
+                <img id="tanjironpcc" src="the second cat.png" style="width: 130px; height: 200px;">
+                <h1 id="johnname">Garf</h1>
+            </div>
+            <div id="text">
+                <p id="dialogue">Understand that content made by AI are very prone to mistakes. </p>
+                <a href="newchapter3_3.html">
+                    <button id="nextButton">Next</button>
+                </a>
+
+            
+                <div class="timer" id="timer">10:00</div>
+
+                <div class="modal" id="skipModal">
+                    <div class="modal-content">
+                        <h2>Skip Timer?</h2>
+                        <p>Are you sure you want to skip the remaining time?</p>
+                        <div class="modal-buttons">
+                            <button class="confirm-btn" onclick="confirmSkip()">Yes, Skip</button>
+                            <button class="cancel-btn" onclick="closeModal()">No, Continue</button>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    class CountdownTimer {
+                        constructor() {
+                            this.timerElement = document.getElementById('timer');
+                            this.modal = document.getElementById('skipModal');
+                            this.totalTime = 600000; // 10 minutes in milliseconds
+                            this.initializeTimer();
+                            
+                            // Add click event listener to timer
+                            this.timerElement.addEventListener('click', () => this.showSkipModal());
+                        }
+            
+                        initializeTimer() {
+                            const startTime = localStorage.getItem('timerStartTime');
+                            
+                            if (!startTime) {
+                                // First time initialization
+                                localStorage.setItem('timerStartTime', Date.now().toString());
+                            }
+            
+                            this.updateTimer();
+                        }
+            
+                        updateTimer() {
+                            const startTime = parseInt(localStorage.getItem('timerStartTime'));
+                            const currentTime = Date.now();
+                            const elapsedTime = currentTime - startTime;
+                            const remainingTime = Math.max(0, this.totalTime - elapsedTime);
+            
+                            if (remainingTime <= 0) {
+                                this.timerComplete();
+                                return;
+                            }
+            
+                            // Convert to minutes and seconds
+                            const minutes = Math.floor(remainingTime / 60000);
+                            const seconds = Math.floor((remainingTime % 60000) / 1000);
+            
+                            this.timerElement.textContent = 
+                                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+                            // Update more frequently for smoother countdown
+                            requestAnimationFrame(() => this.updateTimer());
+                        }
+            
+                        showSkipModal() {
+                            this.modal.style.display = 'flex';
+                        }
+            
+                        closeModal() {
+                            this.modal.style.display = 'none';
+                        }
+            
+                        skipTimer() {
+                            localStorage.removeItem('timerStartTime');
+                            // Replace 'your-destination-page.html' with your actual destination page
+                            window.location.href = 'newendofvol1.html';
+                        }
+            
+                        timerComplete() {
+                            localStorage.removeItem('timerStartTime');
+                            // Replace 'your-destination-page.html' with your actual destination page
+                            window.location.href = 'newendofvol1.html';
+                        }
+                    }
+            
+                    // Initialize timer when page loads
+                    const timer = new CountdownTimer();
+            
+                    // Modal control functions
+                    function closeModal() {
+                        timer.closeModal();
+                    }
+            
+                    function confirmSkip() {
+                        timer.skipTimer();
+                    }
+                </script>
+                    
+</body>
+</html>
